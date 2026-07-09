@@ -10,8 +10,18 @@ import {
   type Session,
 } from "./session";
 
-const GUEST_PASSWORD = process.env.GUEST_PASSWORD ?? "revelio";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "marauders1885";
+/*
+ * Passwords live only in the environment (.env.local / host config) —
+ * no fallbacks, so a missing variable fails loudly instead of silently
+ * accepting a known default. Checked lazily to keep builds env-free.
+ */
+function requiredEnv(name: "GUEST_PASSWORD" | "ADMIN_PASSWORD"): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} is not set — add it to .env.local (see .env.example).`);
+  }
+  return value;
+}
 
 /** Constant-time comparison; hashing first hides length differences. */
 function safeEqual(a: string, b: string): boolean {
@@ -21,8 +31,8 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export function checkPassword(input: string): Role | null {
-  if (safeEqual(input, ADMIN_PASSWORD)) return "admin";
-  if (safeEqual(input, GUEST_PASSWORD)) return "guest";
+  if (safeEqual(input, requiredEnv("ADMIN_PASSWORD"))) return "admin";
+  if (safeEqual(input, requiredEnv("GUEST_PASSWORD"))) return "guest";
   return null;
 }
 

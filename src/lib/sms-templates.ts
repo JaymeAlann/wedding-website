@@ -15,7 +15,7 @@ export interface SmsTemplate {
 
 const names = `${couple.a} & ${couple.b}`;
 const siteUrl = process.env.SITE_URL?.trim() || "[your-site-url]";
-const guestPassword = process.env.GUEST_PASSWORD ?? "revelio";
+const guestPassword = process.env.GUEST_PASSWORD?.trim() || "[guest password]";
 
 export function smsTemplates(): SmsTemplate[] {
   return [

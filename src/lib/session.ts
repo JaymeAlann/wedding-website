@@ -14,12 +14,19 @@ export interface Session {
   exp: number;
 }
 
-// `||` (not `??`) so a blank env var still gets the dev fallback,
-// which stays stable across restarts. Set a real SESSION_SECRET in
-// production (see .env.example).
-const SECRET =
-  process.env.SESSION_SECRET ||
-  `dev-secret:${process.env.GUEST_PASSWORD || "revelio"}:${process.env.ADMIN_PASSWORD || "marauders1885"}`;
+// Required, with no fallback: a guessable default secret would let
+// anyone forge an admin session cookie. Generate with
+// `openssl rand -hex 32` (see .env.example). Checked lazily so builds
+// don't need the environment.
+function secret(): string {
+  const value = process.env.SESSION_SECRET?.trim();
+  if (!value) {
+    throw new Error(
+      "SESSION_SECRET is not set — add it to .env.local (see .env.example).",
+    );
+  }
+  return value;
+}
 
 const encoder = new TextEncoder();
 
@@ -28,7 +35,7 @@ let keyPromise: Promise<CryptoKey> | undefined;
 function hmacKey(): Promise<CryptoKey> {
   keyPromise ??= crypto.subtle.importKey(
     "raw",
-    encoder.encode(SECRET),
+    encoder.encode(secret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"],
