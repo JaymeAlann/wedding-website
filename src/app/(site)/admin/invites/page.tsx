@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { Icon } from "@/components/icons";
 import { Flourish } from "@/components/ornaments";
@@ -23,14 +24,42 @@ const sentAtFmt = new Intl.DateTimeFormat("en-US", {
 
 const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
 
-export default async function InvitesPage() {
+const MESSAGE_LOG_PAGE_SIZE = 7;
+
+type InvitesPageProps = {
+  searchParams: Promise<{ logPage?: string | string[] }>;
+};
+
+function parseLogPage(value: string | string[] | undefined): number {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const page = Number.parseInt(raw ?? "1", 10);
+  return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+function messageLogHref(page: number): string {
+  const query = page > 1 ? `?logPage=${page}` : "";
+  return `/admin/invites${query}#message-log`;
+}
+
+export default async function InvitesPage({ searchParams }: InvitesPageProps) {
   await requireAdmin();
-  const [invitees, campaigns, rsvps] = await Promise.all([
+  const [invitees, campaigns, rsvps, query] = await Promise.all([
     listInvitees(),
     listCampaigns(),
     listRsvps(),
+    searchParams,
   ]);
 
+  const totalLogPages = Math.max(
+    1,
+    Math.ceil(campaigns.length / MESSAGE_LOG_PAGE_SIZE),
+  );
+  const logPage = Math.min(parseLogPage(query.logPage), totalLogPages);
+  const logStart = (logPage - 1) * MESSAGE_LOG_PAGE_SIZE;
+  const visibleCampaigns = campaigns.slice(
+    logStart,
+    logStart + MESSAGE_LOG_PAGE_SIZE,
+  );
   const replied = new Set(rsvps.map((r) => normalize(r.name)));
   const recipients = invitees.map((i) => ({
     id: i.id,
@@ -76,7 +105,10 @@ export default async function InvitesPage() {
           twilioReady={twilioReady}
         />
 
-        <div className="border border-gold/30 bg-white/60 p-6 shadow-soft sm:p-7">
+        <div
+          id="message-log"
+          className="scroll-mt-28 border border-gold/30 bg-white/60 p-6 shadow-soft sm:p-7"
+        >
           <h2 className="flex items-center gap-2.5 font-serif text-2xl font-medium italic text-ink">
             <Icon name="quill" className="h-5 w-5 text-gold-ink" />
             Message Log
@@ -85,7 +117,7 @@ export default async function InvitesPage() {
             <p className="mt-4 italic text-ink-soft">No messages sent yet.</p>
           ) : (
             <ul className="mt-4 divide-y divide-gold/15">
-              {campaigns.map((c) => {
+              {visibleCampaigns.map((c) => {
                 const failed = c.results.filter((r) => !r.ok);
                 return (
                   <li key={c.id} className="py-3.5">
@@ -127,6 +159,55 @@ export default async function InvitesPage() {
               })}
             </ul>
           )}
+          {campaigns.length > MESSAGE_LOG_PAGE_SIZE ? (
+            <nav
+              aria-label="Message log pagination"
+              className="mt-5 flex items-center justify-between gap-3 border-t border-gold/15 pt-4"
+            >
+              {logPage > 1 ? (
+                <Link
+                  href={messageLogHref(logPage - 1)}
+                  scroll={false}
+                  aria-label="Previous message log page"
+                  className="grid h-9 w-9 place-items-center border border-gold/40 text-gold-ink transition-colors hover:bg-gold-deep hover:text-cream"
+                >
+                  <Icon name="chevronLeft" className="h-4 w-4" />
+                </Link>
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="grid h-9 w-9 place-items-center border border-gold/20 text-gold/35"
+                >
+                  <Icon name="chevronLeft" className="h-4 w-4" />
+                </span>
+              )}
+              <p className="text-center font-display text-[0.68rem] uppercase tracking-[0.16em] text-gold-ink">
+                Page {logPage} of {totalLogPages}
+                <span className="mt-1 block font-sans text-xs normal-case tracking-normal text-ink-soft">
+                  Showing {logStart + 1}-
+                  {Math.min(logStart + visibleCampaigns.length, campaigns.length)}{" "}
+                  of {campaigns.length}
+                </span>
+              </p>
+              {logPage < totalLogPages ? (
+                <Link
+                  href={messageLogHref(logPage + 1)}
+                  scroll={false}
+                  aria-label="Next message log page"
+                  className="grid h-9 w-9 place-items-center border border-gold/40 text-gold-ink transition-colors hover:bg-gold-deep hover:text-cream"
+                >
+                  <Icon name="chevronRight" className="h-4 w-4" />
+                </Link>
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="grid h-9 w-9 place-items-center border border-gold/20 text-gold/35"
+                >
+                  <Icon name="chevronRight" className="h-4 w-4" />
+                </span>
+              )}
+            </nav>
+          ) : null}
         </div>
       </div>
     </main>

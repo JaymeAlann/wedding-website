@@ -132,6 +132,8 @@ const paths = {
       <path d="M15 8l4 4-4 4M19 12H9.5" />
     </>
   ),
+  chevronLeft: <path d="M15 6l-6 6 6 6" />,
+  chevronRight: <path d="M9 6l6 6-6 6" />,
   chevronDown: <path d="M6 9.5l6 6 6-6" />,
   check: <path d="M5 13l4.5 4.5L19 7" />,
   mapPin: (
