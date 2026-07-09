@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Palette carried over from the original single-file app:
+ * cream / parchment / gold / green ink / sage / light blue / light pink.
+ * `gold-ink` and `fern` are darkened variants that meet WCAG AA on cream
+ * for small text — use the originals for large or decorative elements.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: #faf6ef;
+  --color-parchment: #f3ede1;
+  --color-parchment-deep: #eae1cf;
+  --color-gold: #bfa05a;
+  --color-gold-deep: #a4854a;
+  --color-gold-ink: #7d6337;
+  --color-ink: #3e4b39;
+  --color-ink-soft: #55624f;
+  --color-sage: #7c8e76;
+  --color-fern: #5d6a55;
+  --color-moss: #8c927f;
+  --color-mist: #ebf2f4;
+  --color-mist-deep: #a9c6cf;
+  --color-blush: #f9f0f0;
+  --color-blush-deep: #e3bfc2;
+
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-display: var(--font-cinzel), "Cinzel", "Times New Roman", serif;
+  --font-script: var(--font-great-vibes), "Great Vibes", cursive;
+
+  --shadow-soft: 0 1px 2px rgb(62 75 57 / 0.05), 0 10px 30px -10px rgb(62 75 57 / 0.15);
+  --shadow-lifted: 0 2px 6px rgb(62 75 57 / 0.06), 0 24px 48px -16px rgb(62 75 57 / 0.22);
+
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+  --animate-drift: drift 9s ease-in-out infinite;
+  --animate-shake: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+/*
+ * One footprint's life in the Marauder's Map trail: step down, linger
+ * while the next few prints land, then fade away behind the walker.
+ * The trail's stagger (0.55s/step in Footprints) has to fit inside the
+ * visible window, so keep duration and step delay in sync.
+ */
+@keyframes footstep {
+  0% { opacity: 0; }
+  4% { opacity: 1; }
+  26% { opacity: 1; }
+  34% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-3px); }
+  40%, 60% { transform: translateX(3px); }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-cream font-serif text-ink;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-cream);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-deep);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Faint paper grain + warm washes, layered over the cream base. */
+  .texture-parchment {
+    background-color: var(--color-cream);
+    background-image:
+      radial-gradient(ellipse 80% 55% at 15% 0%, rgb(235 242 244 / 0.55), transparent 65%),
+      radial-gradient(ellipse 70% 50% at 90% 12%, rgb(249 240 240 / 0.6), transparent 60%),
+      radial-gradient(ellipse 90% 60% at 50% 100%, rgb(243 237 225 / 0.8), transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* Engraved double border, like a printed invitation. */
+  .ornate-frame {
+    border: 1px solid color-mix(in srgb, var(--color-gold) 45%, transparent);
+    outline: 1px solid color-mix(in srgb, var(--color-gold) 60%, transparent);
+    outline-offset: -7px;
+  }
+
+  /* One print in a Footprints trail; delay is staggered inline per step. */
+  .footstep {
+    opacity: 0;
+    animation: footstep 13s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .footstep {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  /* Scroll-triggered entrance; Reveal component toggles .is-visible. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
 }
