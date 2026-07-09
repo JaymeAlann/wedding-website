@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { submitRsvp, type RsvpState } from "@/app/(site)/actions";
 import { Icon } from "@/components/icons";
+import { OwlSendoff } from "@/components/owl-sendoff";
 import { MAX_PARTY_SIZE, wedding } from "@/lib/config";
 
 const initialState: RsvpState = { status: "idle" };
@@ -25,27 +26,12 @@ export function RsvpForm() {
 
   if (state.status === "success" && !editing) {
     return (
-      <div className="px-2 py-8 text-center" role="status">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gold/60 bg-cream text-gold-ink shadow-soft">
-          <Icon name="owl" className="h-9 w-9" />
-        </div>
-        <p className="mt-5 font-script text-4xl text-gold-deep">
-          Mischief managed!
-        </p>
-        <p className="mt-3 text-balance italic text-ink-soft">
-          {state.attending
-            ? `Your owl has arrived, ${state.name}. We can't wait to celebrate with you.`
-            : `Your owl has arrived, ${state.name}. You'll be missed dearly — we'll raise a glass in your honor.`}
-          {state.updated ? " (We've updated your earlier reply.)" : ""}
-        </p>
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="mt-7 cursor-pointer font-display text-xs uppercase tracking-[0.2em] text-fern underline underline-offset-4 transition-colors hover:text-ink"
-        >
-          Change your reply
-        </button>
-      </div>
+      <OwlSendoff
+        name={state.name}
+        attending={state.attending}
+        updated={state.updated}
+        onEdit={() => setEditing(true)}
+      />
     );
   }
 

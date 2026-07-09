@@ -1,13 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { db, isDbConfigured } from "./db";
 
 /*
- * File-backed RSVP store: data/rsvps.json. Writes are atomic
- * (tmp + rename) and serialized through a promise queue, which is
- * plenty for wedding-guest traffic on a single Node server. Swap this
- * module for a database if you deploy somewhere without a persistent
- * disk (see README).
+ * RSVP store. With DATABASE_URL set (Supabase Postgres) replies live in
+ * the `rsvps` table; otherwise they fall back to data/rsvps.json with
+ * atomic, serialized writes (fine for local dev on one server).
  */
 
 export interface Rsvp {
@@ -26,6 +25,88 @@ export interface Rsvp {
 }
 
 export type RsvpInput = Omit<Rsvp, "id" | "createdAt" | "updatedAt">;
+
+/* ── Postgres backend ──────────────────────────────────────────── */
+
+interface RsvpRow {
+  id: string;
+  name: string;
+  email: string;
+  attending: boolean;
+  party_size: number;
+  guest_names: string;
+  dietary: string;
+  song: string;
+  message: string;
+  created_at: Date;
+  updated_at: Date;
+  updated?: boolean;
+}
+
+function fromRow(row: RsvpRow): Rsvp {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    attending: row.attending,
+    partySize: row.party_size,
+    guestNames: row.guest_names,
+    dietary: row.dietary,
+    song: row.song,
+    message: row.message,
+    createdAt: row.created_at.toISOString(),
+    updatedAt: row.updated_at.toISOString(),
+  };
+}
+
+async function dbList(): Promise<Rsvp[]> {
+  const sql = await db();
+  const rows = await sql<RsvpRow[]>`
+    select * from rsvps order by created_at desc`;
+  return rows.map(fromRow);
+}
+
+async function dbSave(
+  input: RsvpInput,
+): Promise<{ rsvp: Rsvp; updated: boolean }> {
+  const sql = await db();
+  // Conflict target must match the expression index in db.ts.
+  const [row] = await sql<RsvpRow[]>`
+    insert into rsvps (
+      id, name, email, attending, party_size, guest_names,
+      dietary, song, message, created_at, updated_at
+    ) values (
+      ${randomUUID()}, ${input.name}, ${input.email}, ${input.attending},
+      ${input.partySize}, ${input.guestNames}, ${input.dietary},
+      ${input.song}, ${input.message}, now(), now()
+    )
+    on conflict ((lower(regexp_replace(trim(name), '\\s+', ' ', 'g'))))
+    do update set
+      name = excluded.name,
+      email = excluded.email,
+      attending = excluded.attending,
+      party_size = excluded.party_size,
+      guest_names = excluded.guest_names,
+      dietary = excluded.dietary,
+      song = excluded.song,
+      message = excluded.message,
+      updated_at = now()
+    returning *, (xmax <> 0) as updated`;
+  return { rsvp: fromRow(row), updated: Boolean(row.updated) };
+}
+
+async function dbDelete(id: string): Promise<boolean> {
+  const sql = await db();
+  try {
+    const rows = await sql`
+      delete from rsvps where id = ${id}::uuid returning id`;
+    return rows.length > 0;
+  } catch {
+    return false; // not a valid uuid
+  }
+}
+
+/* ── JSON-file backend (no DATABASE_URL) ───────────────────────── */
 
 const DATA_FILE = path.join(process.cwd(), "data", "rsvps.json");
 
@@ -59,18 +140,15 @@ async function writeAll(rsvps: Rsvp[]): Promise<void> {
   await fs.rename(tmp, DATA_FILE);
 }
 
-export function listRsvps(): Promise<Rsvp[]> {
+const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
+function fileList(): Promise<Rsvp[]> {
   return serialized(async () =>
     (await readAll()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   );
 }
 
-const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
-
-/** Insert, or update an earlier reply from the same name. */
-export function saveRsvp(
-  input: RsvpInput,
-): Promise<{ rsvp: Rsvp; updated: boolean }> {
+function fileSave(input: RsvpInput): Promise<{ rsvp: Rsvp; updated: boolean }> {
   return serialized(async () => {
     const rsvps = await readAll();
     const now = new Date().toISOString();
@@ -89,7 +167,7 @@ export function saveRsvp(
   });
 }
 
-export function deleteRsvp(id: string): Promise<boolean> {
+function fileDelete(id: string): Promise<boolean> {
   return serialized(async () => {
     const rsvps = await readAll();
     const next = rsvps.filter((r) => r.id !== id);
@@ -97,4 +175,21 @@ export function deleteRsvp(id: string): Promise<boolean> {
     await writeAll(next);
     return true;
   });
+}
+
+/* ── Public API ────────────────────────────────────────────────── */
+
+export function listRsvps(): Promise<Rsvp[]> {
+  return isDbConfigured() ? dbList() : fileList();
+}
+
+/** Insert, or update an earlier reply from the same name. */
+export function saveRsvp(
+  input: RsvpInput,
+): Promise<{ rsvp: Rsvp; updated: boolean }> {
+  return isDbConfigured() ? dbSave(input) : fileSave(input);
+}
+
+export function deleteRsvp(id: string): Promise<boolean> {
+  return isDbConfigured() ? dbDelete(id) : fileDelete(id);
 }

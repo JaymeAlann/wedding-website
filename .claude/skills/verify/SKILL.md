@@ -14,7 +14,7 @@ npm run build            # Turbopack + TS check
 PORT=3111 npm start      # production server (run in background)
 ```
 
-Passwords come from `.env.local` (`GUEST_PASSWORD`, `ADMIN_PASSWORD`; defaults `revelio` / `marauders1885`).
+Passwords come from `.env.local` (`GUEST_PASSWORD`, `ADMIN_PASSWORD`) — read them from there when driving the login; there are no hardcoded defaults.
 
 ## Driving server actions with curl (the tricky part)
 

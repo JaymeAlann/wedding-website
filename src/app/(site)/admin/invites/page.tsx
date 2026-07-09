@@ -37,6 +37,7 @@ export default async function InvitesPage() {
     name: i.name,
     phone: i.phone,
     tag: i.tag,
+    plusOne: i.plusOne,
     replied: replied.has(normalize(i.name)),
   }));
   const twilioReady = isTwilioConfigured();

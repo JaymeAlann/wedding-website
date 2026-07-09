@@ -7,6 +7,7 @@ import {
   listInvitees,
   saveCampaign,
   saveInvitee,
+  setPlusOne,
   type CampaignResult,
 } from "@/lib/invitee-store";
 import { firstName } from "@/lib/sms-templates";
@@ -26,6 +27,7 @@ export async function addInvitee(
   const name = String(formData.get("name") ?? "").trim();
   const phoneRaw = String(formData.get("phone") ?? "").trim();
   const tag = String(formData.get("tag") ?? "").trim() || "Friends";
+  const plusOne = formData.get("plusOne") === "on";
 
   if (!name)
     return { status: "error", message: "Every invitee needs a name." };
@@ -38,7 +40,7 @@ export async function addInvitee(
       message: "That number doesn't look right — try the 10-digit US format.",
     };
 
-  const { updated } = await saveInvitee({ name, phone, tag });
+  const { updated } = await saveInvitee({ name, phone, tag, plusOne });
   revalidatePath("/admin/invites");
   return { status: "success", name, updated };
 }
@@ -47,6 +49,14 @@ export async function removeInvitee(id: string): Promise<void> {
   await requireAdmin();
   if (!id) return;
   await deleteInvitee(id);
+  revalidatePath("/admin/invites");
+}
+
+/** Flip whether an invitation covers a guest; enforced at RSVP time. */
+export async function togglePlusOne(id: string, plusOne: boolean): Promise<void> {
+  await requireAdmin();
+  if (!id) return;
+  await setPlusOne(id, plusOne);
   revalidatePath("/admin/invites");
 }
 

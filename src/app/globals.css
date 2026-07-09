@@ -59,6 +59,71 @@
   100% { opacity: 0; }
 }
 
+/* Name ribbon walks with its trail. The prints land from (12%, 91%)
+   to (85%, 13%) of the trail box over the first 38% of the 13s
+   .footstep cycle; the ribbon tracks them, waits at the trail's end,
+   and fades with the last prints. */
+@keyframes footprint-tag-walk {
+  0% { left: 12%; top: 91%; opacity: 0; }
+  6% { opacity: 1; }
+  38% { left: 85%; top: 13%; }
+  62% { left: 85%; top: 13%; opacity: 1; }
+  74% { left: 85%; top: 13%; opacity: 0; }
+  100% { left: 85%; top: 13%; opacity: 0; }
+}
+
+/*
+ * ── RSVP owl send-off ─────────────────────────────────────────
+ * One fixed timeline, all delays relative to the success render:
+ * letter drops into the envelope (0.4s), flap closes (1.5s), seal
+ * pops (2.1s), owl swoops in (2.6s), owl + envelope fly off together
+ * (3.7s — same delta so they travel as one), message fades in (4.5s).
+ * Every piece uses `forwards`, so reduced-motion (which collapses
+ * durations) jumps straight to the final thank-you state.
+ */
+@keyframes letter-drop {
+  to { transform: translateY(62px) scaleY(0.92); }
+}
+
+@keyframes flap-close {
+  from { transform: scaleY(-1); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes seal-pop {
+  from { transform: scale(0); }
+  60% { transform: scale(1.25); }
+  to { transform: scale(1); }
+}
+
+@keyframes owl-swoop {
+  from { transform: translate(210px, -110px) rotate(-14deg); opacity: 0; }
+  45% { opacity: 1; }
+  to { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes owl-away {
+  0% { transform: translate(0, 0); opacity: 1; }
+  22% { transform: translate(-6px, 10px); opacity: 1; }
+  100% { transform: translate(-210px, -130px) scale(0.6); opacity: 0; }
+}
+
+@keyframes mail-away {
+  0% { transform: translate(0, 0); opacity: 1; }
+  22% { transform: translate(-4px, -14px); opacity: 1; }
+  100% { transform: translate(-206px, -104px) scale(0.6) rotate(-6deg); opacity: 0; }
+}
+
+@keyframes wing-flap {
+  from { transform: rotate(16deg); }
+  to { transform: rotate(-14deg); }
+}
+
+@keyframes sendoff-text-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
 @keyframes shake {
   10%, 90% { transform: translateX(-1px); }
   20%, 80% { transform: translateX(2px); }
@@ -121,6 +186,48 @@
     outline-offset: -7px;
   }
 
+  /* RSVP owl send-off pieces — timeline documented at the keyframes. */
+  .sendoff-letter {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: letter-drop 1s ease-in 0.4s forwards;
+  }
+  .sendoff-flap {
+    transform-box: fill-box;
+    transform-origin: top center;
+    transform: scaleY(-1);
+    animation: flap-close 0.5s ease-in-out 1.5s forwards;
+  }
+  .sendoff-seal {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0);
+    animation: seal-pop 0.35s ease-out 2.1s forwards;
+  }
+  .sendoff-mail {
+    animation: mail-away 1.2s ease-in 3.7s forwards;
+  }
+  .sendoff-owl {
+    opacity: 0;
+    animation:
+      owl-swoop 0.9s ease-out 2.6s both,
+      owl-away 1.2s ease-in 3.7s forwards;
+  }
+  .sendoff-wing {
+    transform-box: fill-box;
+    animation: wing-flap 0.35s ease-in-out infinite alternate;
+  }
+  .sendoff-wing-left {
+    transform-origin: right center;
+  }
+  .sendoff-wing-right {
+    transform-origin: left center;
+  }
+  .sendoff-text {
+    opacity: 0;
+    animation: sendoff-text-in 0.8s ease 4.5s forwards;
+  }
+
   /* One print in a Footprints trail; delay is staggered inline per step. */
   .footstep {
     opacity: 0;
@@ -131,6 +238,37 @@
       animation: none;
       opacity: 1;
     }
+  }
+
+  /* Carries the name ribbon along its trail, in the trail's own
+     (rotated) coordinate space. */
+  .footprint-tag-track {
+    position: absolute;
+    opacity: 0;
+    animation: footprint-tag-walk 13s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .footprint-tag-track {
+      animation: none;
+      opacity: 0.9;
+      left: 50%;
+      top: 50%;
+    }
+  }
+
+  /* The Marauder's Map name ribbon itself. */
+  .footprint-tag {
+    display: block;
+    padding: 0.1rem 1rem 0.2rem;
+    white-space: nowrap;
+    font-family: var(--font-script);
+    font-size: 1.05rem;
+    line-height: 1.2;
+    color: var(--color-gold-ink);
+    background: color-mix(in srgb, var(--color-parchment-deep) 88%, transparent);
+    box-shadow: 0 1px 4px rgb(62 75 57 / 0.18);
+    /* notched banner ends, like the map's scroll */
+    clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 50%, 100% 100%, 0 100%, 7px 50%);
   }
 
   /* Scroll-triggered entrance; Reveal component toggles .is-visible. */

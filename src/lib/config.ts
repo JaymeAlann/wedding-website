@@ -195,8 +195,12 @@ export const faqs: Faq[] = [
   },
 ];
 
-/** Party sizes offered on the RSVP form. */
-export const MAX_PARTY_SIZE = 6;
+/**
+ * Party sizes offered on the RSVP form. Invitations cover the guest
+ * plus at most one companion; whether a given name actually gets the
+ * +1 is decided per-invitee on /admin/invites and enforced at submit.
+ */
+export const MAX_PARTY_SIZE = 2;
 
 export interface Photo {
   src: string;

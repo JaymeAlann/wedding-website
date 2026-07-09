@@ -39,15 +39,16 @@ hardcoded in the source):
   (`src/lib/session.ts`). `src/proxy.ts` redirects anonymous visitors to
   `/login`; pages and server actions re-verify with `src/lib/auth.ts`.
   Guests and admins are just two passwords mapped to two roles.
-- **RSVPs** — stored in `data/rsvps.json` via `src/lib/rsvp-store.ts`
-  (atomic, serialized writes — plenty for guest-list traffic). Replying
-  again with the same name updates the earlier reply. `/admin` shows
-  stats, the full table, song requests, and a CSV export.
-- **SMS invitations** — `/admin/invites` keeps a guest list
-  (`data/invitees.json`) and sends templated, personalized texts through
-  Twilio (`src/lib/twilio.ts`); every campaign is logged with
-  per-recipient results in `data/campaigns.json`. Sending stays disabled
-  until the Twilio env vars are set.
+- **RSVPs** — stored in Supabase Postgres when `DATABASE_URL` is set
+  (tables auto-create on first use), or in `data/rsvps.json` without it
+  (`src/lib/rsvp-store.ts`). Replying again with the same name updates
+  the earlier reply. `/admin` shows stats, the full table, song
+  requests, and a CSV export.
+- **SMS invitations** — `/admin/invites` keeps a guest list and sends
+  templated, personalized texts through Twilio (`src/lib/twilio.ts`);
+  every campaign is logged with per-recipient results. Same storage
+  rule: Postgres with `DATABASE_URL`, JSON files in `data/` without.
+  Sending stays disabled until the Twilio env vars are set.
 - **Calendar** — `/calendar.ics` serves a proper invite with the venue's
   time zone.
 - **Privacy** — every page sends `noindex`, and the whole site sits behind
@@ -55,20 +56,19 @@ hardcoded in the source):
 
 ## Deploying
 
-The RSVP store writes to local disk, so deploy somewhere with a persistent
-filesystem (a VPS, Railway, Fly.io, render.com disk, etc.):
-
 ```bash
 npm run build
 npm start
 ```
 
-Set `GUEST_PASSWORD`, `ADMIN_PASSWORD`, and `SESSION_SECRET` (plus the
-Twilio variables and `SITE_URL` for SMS invitations) in the host's
-environment. On serverless platforms (Vercel and friends) the filesystem is
-ephemeral — swap `src/lib/rsvp-store.ts` and `src/lib/invitee-store.ts` for
-a hosted store (Vercel KV, Postgres, Supabase…); they're the only files
-that touch disk.
+Set `GUEST_PASSWORD`, `ADMIN_PASSWORD`, `SESSION_SECRET`, and
+`DATABASE_URL` (plus the Twilio variables and `SITE_URL` for SMS
+invitations) in the host's environment. With `DATABASE_URL` pointing at
+Supabase, nothing touches local disk, so serverless hosts (Vercel and
+friends) work fine — use Supabase's pooled connection string (port 6543)
+there. Without `DATABASE_URL`, the stores write JSON files to `data/`,
+which needs a persistent filesystem (a VPS, Railway, Fly.io, render.com
+disk, etc.).
 
 ## Layout
 
@@ -79,7 +79,8 @@ src/
 │   ├── config.ts             # ← all wedding content
 │   ├── session.ts            # signed-cookie tokens (Web Crypto)
 │   ├── auth.ts               # passwords, require{Session,Admin}
-│   ├── rsvp-store.ts         # JSON-file RSVP store
+│   ├── db.ts                 # Supabase Postgres client + schema
+│   ├── rsvp-store.ts         # RSVP store (Postgres or JSON file)
 │   ├── invitee-store.ts      # guest list + SMS campaign log
 │   ├── sms-templates.ts      # save-the-date / invitation / reminder texts
 │   └── twilio.ts             # thin Twilio REST client

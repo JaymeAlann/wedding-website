@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { destroySession, getSession } from "@/lib/auth";
 import { MAX_PARTY_SIZE } from "@/lib/config";
+import { allowedPartySize } from "@/lib/invitee-store";
 import { saveRsvp } from "@/lib/rsvp-store";
 
 export type RsvpState =
@@ -44,6 +45,13 @@ export async function submitRsvp(
       partySizeRaw > MAX_PARTY_SIZE)
   ) {
     return error("Please pick how many seats you'll need.");
+  }
+
+  // Per-invitee +1 override, set on /admin/invites and matched by name.
+  if (attending && partySizeRaw > (await allowedPartySize(name))) {
+    return error(
+      "Our ledger shows this invitation is for one seat. If that doesn't look right, reach out to us and we'll sort it.",
+    );
   }
 
   for (const [value, max] of [

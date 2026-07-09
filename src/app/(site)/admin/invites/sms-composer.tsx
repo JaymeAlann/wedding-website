@@ -7,6 +7,7 @@ import {
   addInvitee,
   removeInvitee,
   sendCampaign,
+  togglePlusOne,
   type CampaignState,
   type InviteeState,
 } from "./actions";
@@ -16,6 +17,8 @@ export interface Recipient {
   name: string;
   phone: string;
   tag: string;
+  /** Whether their invitation covers a guest. */
+  plusOne: boolean;
   /** Whether an RSVP with a matching name has come in. */
   replied: boolean;
 }
@@ -44,6 +47,7 @@ export function SmsComposer({
     CampaignState,
     FormData
   >(sendCampaign, { status: "idle" });
+  // Shared for the row-level fire-and-forget actions (remove, +1 toggle).
   const [, startRemove] = useTransition();
 
   const [templateKey, setTemplateKey] = useState(templates[0]?.key ?? "");
@@ -103,6 +107,15 @@ export function SmsComposer({
             placeholder="Tag (Friends)"
             className={`${inputClass} min-w-24 flex-1`}
           />
+          <label className="flex cursor-pointer items-center gap-2 border border-ink/25 bg-cream px-3.5 py-2.5 text-sm text-ink">
+            <input
+              type="checkbox"
+              name="plusOne"
+              defaultChecked
+              className="h-4 w-4 accent-fern"
+            />
+            +1
+          </label>
           <button
             type="submit"
             disabled={addPending}
@@ -225,6 +238,25 @@ export function SmsComposer({
                     {`${i.phone} · ${i.tag}`}
                   </span>
                 </span>
+                <button
+                  type="button"
+                  title={
+                    i.plusOne
+                      ? `${i.name}'s invitation covers a guest — click to make it just them`
+                      : `${i.name}'s invitation is just for them — click to allow a guest`
+                  }
+                  onClick={(e) => {
+                    e.preventDefault(); // don't toggle the row checkbox
+                    startRemove(() => togglePlusOne(i.id, !i.plusOne));
+                  }}
+                  className={`cursor-pointer border px-2 py-0.5 font-display text-[0.65rem] uppercase tracking-[0.12em] transition-colors ${
+                    i.plusOne
+                      ? "border-sage/60 bg-sage/15 text-fern hover:border-fern"
+                      : "border-ink/30 bg-cream text-moss line-through hover:border-ink/60"
+                  }`}
+                >
+                  +1
+                </button>
                 {i.replied ? (
                   <span className="inline-flex items-center gap-1 border border-sage/60 bg-sage/15 px-2 py-0.5 text-xs text-fern">
                     <Icon name="check" className="h-3 w-3" />
@@ -234,7 +266,8 @@ export function SmsComposer({
                 <button
                   type="button"
                   aria-label={`Remove ${i.name} from the guest list`}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault(); // don't toggle the row checkbox
                     if (confirm(`Remove ${i.name} from the guest list?`)) {
                       startRemove(() => removeInvitee(i.id));
                     }
