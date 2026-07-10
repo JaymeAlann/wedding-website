@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { couple, dateShort, wedding } from "@/lib/config";
+import { LineBotanical } from "@/components/botanicals";
 import { CardCorners, Flourish } from "@/components/ornaments";
 import { WanderingFeet } from "@/components/wandering-feet";
 import { walkerNames } from "@/lib/walkers";
@@ -22,7 +23,17 @@ export default async function LoginPage({
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4 py-16">
       <WanderingFeet count={Math.min(walkers.length, 8)} names={walkers} />
 
-      <div className="relative w-full max-w-md bg-parchment/90 shadow-lifted ornate-frame">
+      <div className="relative w-full max-w-md">
+        {/* Stems tucked behind the invitation, stationery-style. */}
+        <LineBotanical
+          kind="rose"
+          className="absolute -right-7 -top-20 w-28 rotate-[30deg] text-ink/60 sm:-right-14"
+        />
+        <LineBotanical
+          kind="eucalyptus"
+          className="absolute -bottom-8 -left-16 w-24 -rotate-[36deg] text-ink/60"
+        />
+        <div className="relative w-full bg-parchment/90 shadow-lifted ornate-frame">
         <CardCorners />
         <div className="px-7 py-12 text-center sm:px-12">
           <p className="font-script text-4xl leading-tight text-gold-deep">
@@ -45,6 +56,7 @@ export default async function LoginPage({
             Lost the password? Owl the couple — or check the back of your
             invitation.
           </p>
+        </div>
         </div>
       </div>
     </main>

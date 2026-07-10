@@ -310,11 +310,23 @@
     transform: none;
   }
 
+  /* The watercolor blob behind a one-line botanical bleeds in after
+     the stroke has mostly drawn itself. */
+  .botanical .botanical-wash {
+    opacity: 0;
+    transition: opacity 1.6s ease;
+    transition-delay: var(--grow-delay, 0s);
+  }
+  .botanical.is-grown .botanical-wash {
+    opacity: var(--wash-opacity, 0.35);
+  }
+
   /* Reduced motion: skip the growing and show the plants in bloom. */
   @media (prefers-reduced-motion: reduce) {
     .botanical .botanical-stem,
     .botanical .botanical-leaf,
-    .botanical .botanical-petal {
+    .botanical .botanical-petal,
+    .botanical .botanical-wash {
       transition: none;
     }
     .botanical .botanical-stem {
@@ -324,6 +336,9 @@
     .botanical .botanical-petal {
       opacity: 1;
       transform: none;
+    }
+    .botanical .botanical-wash {
+      opacity: var(--wash-opacity, 0.35);
     }
   }
 
