@@ -1,6 +1,23 @@
 /* Decorative SVG flourishes shared across the site. All aria-hidden. */
 
+/** One delicate line-art leaf, tip up-and-right from its joint at (0,0). */
+export const LEAF_D = "M0 0C4.6-1.4 7.8-5.6 8.4-11.6C3.4-9.3 0.6-4.9 0 0Z";
+
 export function Flourish({ className }: { className?: string }) {
+  const half = (
+    <>
+      <path d="M112 12h-42c-14 0-22-6-34-6-10 0-16 4-26 6" />
+      <circle cx="7" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      {/* Leaves budding off the swash, with a berry near its tail. */}
+      <g transform="translate(88 12) rotate(-36) scale(0.5)">
+        <path d={LEAF_D} />
+      </g>
+      <g transform="translate(52 9) scale(-0.45 0.45)">
+        <path d={LEAF_D} />
+      </g>
+      <circle cx="23" cy="7.2" r="1.1" />
+    </>
+  );
   return (
     <svg
       viewBox="0 0 240 24"
@@ -11,13 +28,34 @@ export function Flourish({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      <path d="M112 12h-42c-14 0-22-6-34-6-10 0-16 4-26 6" />
-      <circle cx="7" cy="12" r="1.4" fill="currentColor" stroke="none" />
-      <g transform="translate(240 0) scale(-1 1)">
-        <path d="M112 12h-42c-14 0-22-6-34-6-10 0-16 4-26 6" />
-        <circle cx="7" cy="12" r="1.4" fill="currentColor" stroke="none" />
-      </g>
+      {half}
+      <g transform="translate(240 0) scale(-1 1)">{half}</g>
       <path d="M120 7.2l4.8 4.8-4.8 4.8-4.8-4.8z" />
+    </svg>
+  );
+}
+
+/**
+ * A pair of leaves budding straight off a vertical line, for the
+ * timeline spines. Center it on the line (it grows to both sides).
+ */
+export function SpineSprout({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 28 28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <g transform="translate(14 12) rotate(-10) scale(0.7)">
+        <path d={LEAF_D} />
+      </g>
+      <g transform="translate(14 21) rotate(-10) scale(-0.6 0.6)">
+        <path d={LEAF_D} />
+      </g>
     </svg>
   );
 }
@@ -42,6 +80,13 @@ export function CornerOrnament({ className }: { className?: string }) {
       <path d="M52 4c2.6.5 3.6 3.3 1.8 4.8-1.9 1.5-4.6-.3-3.4-2.6" />
       <path d="M4 52c.5 2.6 3.3 3.6 4.8 1.8 1.5-1.9-.3-4.6-2.6-3.4" />
       <path d="M16.5 16.5l3.4 3.4-3.4 3.4-3.4-3.4z" />
+      {/* A leaf sprouting off each arm of the scrollwork. */}
+      <g transform="translate(7 31) rotate(-15) scale(0.5)">
+        <path d={LEAF_D} />
+      </g>
+      <g transform="translate(31 7) rotate(105) scale(-0.5 0.5)">
+        <path d={LEAF_D} />
+      </g>
     </svg>
   );
 }

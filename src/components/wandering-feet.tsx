@@ -1,6 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Footprints } from "./ornaments";
 
 /** One walk cycle — must match the .footstep animation in globals.css. */
@@ -113,20 +122,15 @@ function Wanderer({
   );
 }
 
-/**
- * A background layer of Marauder's Map footprints that wander to a new
- * random spot after every walk. Parent must be `relative`. With
- * `names`, each walk carries a ribbon naming its walker — every name
- * appears at most once on screen, and a capped number of trails still
- * shows everyone over time.
- */
-export function WanderingFeet({
-  count = 1,
-  names,
-}: {
-  count?: number;
-  names?: string[];
-}) {
+interface NamePool {
+  claim: () => string | undefined;
+  release: (name: string) => void;
+}
+
+const NamePoolContext = createContext<NamePool | null>(null);
+
+/** A pool that hands each name to at most one walker at a time. */
+function useNamePool(names?: string[]): NamePool | null {
   const inUse = useRef(new Set<string>());
 
   const claim = useCallback(() => {
@@ -142,6 +146,51 @@ export function WanderingFeet({
     inUse.current.delete(name);
   }, []);
 
+  return useMemo(
+    () => (names?.length ? { claim, release } : null),
+    [names, claim, release],
+  );
+}
+
+/**
+ * Shares one walker-name pool across every WanderingFeet beneath it,
+ * so a page with trails in many sections still shows each name at
+ * most once at a time.
+ */
+export function WalkerNames({
+  names,
+  children,
+}: {
+  names: string[];
+  children: ReactNode;
+}) {
+  const pool = useNamePool(names);
+  return (
+    <NamePoolContext.Provider value={pool}>
+      {children}
+    </NamePoolContext.Provider>
+  );
+}
+
+/**
+ * A background layer of Marauder's Map footprints that wander to a new
+ * random spot after every walk. Parent must be `relative`. Walker
+ * names come from the `names` prop or an enclosing WalkerNames
+ * provider; either way each walk carries a ribbon naming its walker,
+ * every name appears at most once on screen, and a capped number of
+ * trails still shows everyone over time.
+ */
+export function WanderingFeet({
+  count = 1,
+  names,
+}: {
+  count?: number;
+  names?: string[];
+}) {
+  const localPool = useNamePool(names);
+  const sharedPool = useContext(NamePoolContext);
+  const pool = localPool ?? sharedPool;
+
   return (
     <div
       aria-hidden="true"
@@ -151,8 +200,8 @@ export function WanderingFeet({
         <Wanderer
           key={k}
           startMs={(k * CYCLE_MS) / count}
-          claim={names ? claim : undefined}
-          release={names ? release : undefined}
+          claim={pool?.claim}
+          release={pool?.release}
         />
       ))}
     </div>

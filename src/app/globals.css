@@ -271,6 +271,62 @@
     clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 50%, 100% 100%, 0 100%, 7px 50%);
   }
 
+  /*
+   * ── Scroll-grown botanicals ──────────────────────────────────
+   * BotanicalDivider adds .is-grown when scrolled into view;
+   * everything below is the growth itself. Stems draw in via dash
+   * offset (paths carry pathLength=1, so the dash math is uniform),
+   * leaves and petals unfurl from their stem joints with a slight
+   * overshoot. Each part staggers itself along the timeline with
+   * --grow-delay.
+   */
+  .botanical .botanical-stem {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 2.1s cubic-bezier(0.45, 0, 0.3, 1);
+    transition-delay: var(--grow-delay, 0s);
+  }
+  .botanical.is-grown .botanical-stem {
+    stroke-dashoffset: 0;
+  }
+
+  .botanical .botanical-leaf,
+  .botanical .botanical-petal {
+    opacity: 0;
+    transform: scale(0.15);
+    transform-box: fill-box;
+    transform-origin: 0% 100%; /* the leaf's stem joint */
+    transition:
+      opacity 0.5s ease,
+      transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition-delay: var(--grow-delay, 0s);
+  }
+  .botanical .botanical-petal {
+    transform-origin: 50% 100%; /* the flower's center */
+  }
+  .botanical.is-grown .botanical-leaf,
+  .botanical.is-grown .botanical-petal {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Reduced motion: skip the growing and show the plants in bloom. */
+  @media (prefers-reduced-motion: reduce) {
+    .botanical .botanical-stem,
+    .botanical .botanical-leaf,
+    .botanical .botanical-petal {
+      transition: none;
+    }
+    .botanical .botanical-stem {
+      stroke-dashoffset: 0;
+    }
+    .botanical .botanical-leaf,
+    .botanical .botanical-petal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   /* Scroll-triggered entrance; Reveal component toggles .is-visible. */
   .reveal {
     opacity: 0;

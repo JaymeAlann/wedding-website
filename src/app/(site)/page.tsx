@@ -1,10 +1,12 @@
+import { BotanicalDivider } from "@/components/botanicals";
 import { Countdown } from "@/components/countdown";
 import { Icon } from "@/components/icons";
-import { CardCorners, Flourish } from "@/components/ornaments";
-import { WanderingFeet } from "@/components/wandering-feet";
+import { CardCorners, Flourish, SpineSprout } from "@/components/ornaments";
+import { WalkerNames, WanderingFeet } from "@/components/wandering-feet";
 import { Reveal } from "@/components/reveal";
 import { RsvpForm } from "@/components/rsvp-form";
 import { SectionHeading } from "@/components/section-heading";
+import { walkerNames } from "@/lib/walkers";
 import {
   couple,
   dateLong,
@@ -34,12 +36,18 @@ const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
   `${wedding.venue.name}, ${wedding.venue.address}`,
 )}`;
 
-export default function HomePage() {
+// The map's walkers grow with the RSVP list, so render fresh.
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const walkers = await walkerNames();
+
   return (
+    <WalkerNames names={walkers}>
     <main id="top">
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative flex min-h-dvh flex-col overflow-hidden pt-16">
-        <WanderingFeet count={3} />
+        <WanderingFeet count={4} />
 
         {STARS.map((star) => (
           <Icon
@@ -115,7 +123,7 @@ export default function HomePage() {
 
       {/* ── Our Story ────────────────────────────────────────── */}
       <section id="story" className="relative scroll-mt-20 px-4 py-20 sm:py-28">
-        <WanderingFeet count={2} />
+        <WanderingFeet count={3} />
         <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading
@@ -133,7 +141,12 @@ export default function HomePage() {
             <div
               aria-hidden="true"
               className="absolute bottom-2 left-5 top-2 w-px -translate-x-1/2 bg-gold/40 sm:left-1/2"
-            />
+            >
+              {/* Leaves budding off the timeline as the tale grows. */}
+              <SpineSprout className="absolute left-1/2 top-[15%] w-7 -translate-x-1/2 text-gold/80" />
+              <SpineSprout className="absolute left-1/2 top-[47%] w-7 -translate-x-1/2 -scale-x-100 text-gold/80" />
+              <SpineSprout className="absolute left-1/2 top-[85%] w-7 -translate-x-1/2 text-gold/80" />
+            </div>
             {story.map((chapter, i) => (
               <li
                 key={chapter.year}
@@ -165,8 +178,9 @@ export default function HomePage() {
       {/* ── Photos ───────────────────────────────────────────── */}
       <section
         id="photos"
-        className="scroll-mt-20 border-y border-gold/20 bg-mist/40 px-4 py-20 sm:py-28"
+        className="relative scroll-mt-20 border-y border-gold/20 bg-mist/40 px-4 py-20 sm:py-28"
       >
+        <BotanicalDivider className="absolute left-1/2 top-0 w-48 -translate-x-1/2 -translate-y-1/2 text-gold/70 sm:w-56" />
         <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading eyebrow="A few favorites" title="Photos" />
@@ -217,7 +231,8 @@ export default function HomePage() {
         id="schedule"
         className="relative scroll-mt-20 border-y border-gold/20 bg-parchment/60 px-4 py-20 sm:py-28"
       >
-        <WanderingFeet />
+        <WanderingFeet count={2} />
+        <BotanicalDivider className="absolute left-1/2 top-0 w-48 -translate-x-1/2 -translate-y-1/2 text-gold/70 sm:w-56" />
         <div className="mx-auto max-w-3xl">
           <Reveal>
             <SectionHeading eyebrow="The order of events" title="The Day" />
@@ -238,6 +253,14 @@ export default function HomePage() {
                     aria-hidden="true"
                     className="absolute -left-[5px] top-2 h-2.5 w-2.5 rounded-full border border-gold-deep bg-cream"
                   />
+                  {i % 2 === 0 && i !== schedule.length - 1 ? (
+                    // A sprout on the timeline between this stop and the next.
+                    <SpineSprout
+                      className={`absolute left-0 top-16 w-6 -translate-x-1/2 text-gold/80 ${
+                        i % 4 === 2 ? "-scale-x-100" : ""
+                      }`}
+                    />
+                  ) : null}
                   <Reveal delay={40}>
                     <h3 className="flex items-center gap-2.5 font-serif text-2xl font-medium italic text-ink">
                       <Icon
@@ -263,7 +286,7 @@ export default function HomePage() {
 
       {/* ── Travel & Stay ────────────────────────────────────── */}
       <section id="travel" className="relative scroll-mt-20 px-4 py-20 sm:py-28">
-        <WanderingFeet />
+        <WanderingFeet count={2} />
         <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading
@@ -325,7 +348,8 @@ export default function HomePage() {
         id="rsvp"
         className="relative scroll-mt-20 border-y border-gold/20 bg-mist/50 px-4 py-20 sm:py-28"
       >
-        <WanderingFeet />
+        <WanderingFeet count={2} />
+        <BotanicalDivider className="absolute left-1/2 top-0 w-48 -translate-x-1/2 -translate-y-1/2 text-gold/70 sm:w-56" />
         <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-[1fr_1.15fr]">
           <Reveal className="lg:sticky lg:top-28">
             <div className="text-center lg:text-left">
@@ -360,7 +384,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Registry ─────────────────────────────────────────── */}
-      <section id="registry" className="scroll-mt-20 px-4 py-20 sm:py-28">
+      <section id="registry" className="relative scroll-mt-20 px-4 py-20 sm:py-28">
+        <WanderingFeet />
         <div className="mx-auto max-w-3xl">
           <Reveal>
             <SectionHeading
@@ -405,7 +430,8 @@ export default function HomePage() {
         id="faq"
         className="relative scroll-mt-20 border-t border-gold/20 bg-parchment/60 px-4 py-20 sm:py-28"
       >
-        <WanderingFeet />
+        <WanderingFeet count={2} />
+        <BotanicalDivider className="absolute left-1/2 top-0 w-48 -translate-x-1/2 -translate-y-1/2 text-gold/70 sm:w-56" />
         <div className="mx-auto max-w-3xl">
           <Reveal>
             <SectionHeading eyebrow="Answers, at a glance" title="Questions" />
@@ -430,5 +456,6 @@ export default function HomePage() {
         </div>
       </section>
     </main>
+    </WalkerNames>
   );
 }

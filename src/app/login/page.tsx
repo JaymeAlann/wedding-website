@@ -2,33 +2,13 @@ import type { Metadata } from "next";
 import { couple, dateShort, wedding } from "@/lib/config";
 import { CardCorners, Flourish } from "@/components/ornaments";
 import { WanderingFeet } from "@/components/wandering-feet";
-import { listRsvps } from "@/lib/rsvp-store";
+import { walkerNames } from "@/lib/walkers";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Welcome" };
 
 // The map's walkers grow with the RSVP list, so render fresh.
 export const dynamic = "force-dynamic";
-
-/** The couple, plus everyone who has RSVP'd yes — the map's walkers. */
-async function walkerNames(): Promise<string[]> {
-  const walkers: string[] = [couple.a, couple.b];
-  try {
-    const rsvps = await listRsvps();
-    for (const rsvp of rsvps) {
-      if (rsvp.attending) walkers.push(rsvp.name);
-    }
-  } catch {
-    // The gate must open even if the database is unreachable.
-  }
-  const seen = new Set<string>();
-  return walkers.filter((name) => {
-    const key = name.trim().toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
 
 export default async function LoginPage({
   searchParams,
