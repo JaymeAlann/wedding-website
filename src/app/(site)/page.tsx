@@ -44,7 +44,7 @@ export default async function HomePage() {
 
   return (
     <WalkerNames names={walkers}>
-    <main id="top">
+    <main id="top" className="overflow-x-clip">
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative flex min-h-dvh flex-col overflow-hidden pt-16">
         <WanderingFeet count={4} />
@@ -134,6 +134,11 @@ export default async function HomePage() {
       {/* ── Our Story ────────────────────────────────────────── */}
       <section id="story" className="relative scroll-mt-20 px-4 py-20 sm:py-28">
         <WanderingFeet count={3} />
+        {/* A full bouquet floats beyond the copy, like the edge of an invitation. */}
+        <LineBotanical
+          kind="gardenBunch"
+          className="absolute -right-10 top-24 w-32 rotate-[7deg] text-ink/45 sm:w-40 lg:right-0 lg:top-32 lg:w-48 xl:right-8"
+        />
         <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading
@@ -196,6 +201,11 @@ export default async function HomePage() {
         className="relative scroll-mt-20 border-y border-gold/20 bg-mist/40 px-4 py-20 sm:py-28"
       >
         <BotanicalDivider className="absolute left-1/2 top-0 w-48 -translate-x-1/2 -translate-y-1/2 text-gold/70 sm:w-56" />
+        {/* A loose pair grows up behind the gallery edge. */}
+        <LineBotanical
+          kind="poppyPair"
+          className="absolute -bottom-8 -left-9 w-28 -rotate-[8deg] text-ink/45 sm:w-36 lg:-left-2 lg:w-44 xl:left-6"
+        />
         <div className="mx-auto max-w-5xl">
           <Reveal>
             <SectionHeading eyebrow="A few favorites" title="Photos" />
@@ -431,6 +441,11 @@ export default async function HomePage() {
         <LineBotanical
           kind="carnation"
           className="absolute -bottom-1 left-6 hidden w-24 -rotate-[4deg] text-ink/60 lg:block xl:left-12"
+        />
+        {/* A second bouquet balances the single stem across the section. */}
+        <LineBotanical
+          kind="gardenBunch"
+          className="absolute -right-10 top-20 w-28 -rotate-[6deg] text-ink/45 sm:w-36 lg:right-1 lg:top-16 lg:w-44 xl:right-8"
         />
         <div className="mx-auto max-w-3xl">
           <Reveal>
