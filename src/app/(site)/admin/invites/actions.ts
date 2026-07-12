@@ -10,6 +10,7 @@ import {
   setPlusOne,
   type CampaignResult,
 } from "@/lib/invitee-store";
+import { smsMediaOption } from "@/lib/sms-media";
 import { firstName } from "@/lib/sms-templates";
 import { isTwilioConfigured, normalizePhone, sendSms } from "@/lib/twilio";
 
@@ -85,6 +86,7 @@ export async function sendCampaign(
   const message = String(formData.get("message") ?? "").trim();
   const templateLabel =
     String(formData.get("templateLabel") ?? "").trim() || "Custom";
+  const media = smsMediaOption(String(formData.get("mediaKey") ?? "none"));
   const ids = formData.getAll("recipients").map(String);
 
   if (!message)
@@ -97,6 +99,28 @@ export async function sendCampaign(
   if (ids.length === 0)
     return { status: "error", message: "Select at least one recipient." };
 
+  let mediaUrl: string | undefined;
+  if (media.publicPath) {
+    const siteUrl = process.env.SITE_URL?.trim();
+    if (!siteUrl || siteUrl.includes("your-domain.com")) {
+      return {
+        status: "error",
+        message:
+          "Set SITE_URL to the deployed site address before sending an image.",
+      };
+    }
+    try {
+      const url = new URL(media.publicPath, siteUrl);
+      if (url.protocol !== "https:") throw new Error("HTTPS is required");
+      mediaUrl = url.href;
+    } catch {
+      return {
+        status: "error",
+        message: "SITE_URL must be a valid public HTTPS address for MMS.",
+      };
+    }
+  }
+
   const invitees = await listInvitees();
   const recipients = invitees.filter((i) => ids.includes(i.id));
   if (recipients.length === 0)
@@ -107,7 +131,7 @@ export async function sendCampaign(
   const results: CampaignResult[] = [];
   for (const invitee of recipients) {
     const body = message.replaceAll("{first_name}", firstName(invitee.name));
-    const result = await sendSms(invitee.phone, body);
+    const result = await sendSms(invitee.phone, body, mediaUrl);
     results.push({
       name: invitee.name,
       phone: invitee.phone,
@@ -116,7 +140,10 @@ export async function sendCampaign(
     });
   }
 
-  await saveCampaign({ templateLabel, message, results });
+  const loggedLabel = media.publicPath
+    ? `${templateLabel} · MMS: ${media.label}`
+    : templateLabel;
+  await saveCampaign({ templateLabel: loggedLabel, message, results });
   revalidatePath("/admin/invites");
 
   return {

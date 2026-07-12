@@ -1,7 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { Icon } from "@/components/icons";
+import {
+  SMS_MEDIA_OPTIONS,
+  smsMediaOption,
+  type SmsMediaKey,
+} from "@/lib/sms-media";
 import type { SmsTemplate } from "@/lib/sms-templates";
 import {
   addInvitee,
@@ -30,6 +36,12 @@ const inputClass =
 const quickBtnClass =
   "cursor-pointer font-display text-[0.65rem] uppercase tracking-[0.16em] text-fern underline decoration-gold/60 underline-offset-4 transition-colors hover:text-ink";
 
+function defaultMediaForTemplate(templateKey: string): SmsMediaKey {
+  if (templateKey === "saveTheDate") return "saveTheDate";
+  if (templateKey === "invitation") return "invitation";
+  return "none";
+}
+
 export function SmsComposer({
   templates,
   invitees,
@@ -52,6 +64,9 @@ export function SmsComposer({
 
   const [templateKey, setTemplateKey] = useState(templates[0]?.key ?? "");
   const [message, setMessage] = useState(templates[0]?.text ?? "");
+  const [mediaKey, setMediaKey] = useState<SmsMediaKey>(() =>
+    defaultMediaForTemplate(templates[0]?.key ?? ""),
+  );
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(invitees.map((i) => [i.id, true])),
   );
@@ -66,10 +81,12 @@ export function SmsComposer({
   const selectedCount = invitees.filter((i) => selected[i.id]).length;
   const templateLabel =
     templates.find((t) => t.key === templateKey)?.label ?? "Custom";
+  const selectedMedia = smsMediaOption(mediaKey);
 
   const pickTemplate = (t: SmsTemplate) => {
     setTemplateKey(t.key);
     setMessage(t.text);
+    setMediaKey(defaultMediaForTemplate(t.key));
   };
 
   const setAll = (predicate: (i: Recipient) => boolean) =>
@@ -145,6 +162,10 @@ export function SmsComposer({
             !confirm(
               `Send this message to ${selectedCount} recipient${
                 selectedCount === 1 ? "" : "s"
+              }${
+                selectedMedia.publicPath
+                  ? ` with the ${selectedMedia.label} image`
+                  : ""
               } right now? This cannot be undone.`,
             )
           ) {
@@ -171,6 +192,59 @@ export function SmsComposer({
           ))}
         </div>
         <input type="hidden" name="templateLabel" value={templateLabel} />
+
+        <fieldset className="mt-5">
+          <legend className={labelClass}>Picture attachment</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            {SMS_MEDIA_OPTIONS.map((option) => {
+              const selected = option.key === mediaKey;
+              return (
+                <label
+                  key={option.key}
+                  className={`cursor-pointer border p-2.5 transition-colors ${
+                    selected
+                      ? "border-ink bg-parchment/70 shadow-soft"
+                      : "border-gold/30 bg-cream/50 hover:border-gold-deep"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="mediaKey"
+                    value={option.key}
+                    checked={selected}
+                    onChange={() => setMediaKey(option.key)}
+                    className="sr-only"
+                  />
+                  {option.publicPath ? (
+                    <Image
+                      src={option.publicPath}
+                      alt={`${option.label} card preview`}
+                      width={1080}
+                      height={1350}
+                      className="h-36 w-full border border-gold/20 object-contain"
+                    />
+                  ) : (
+                    <div className="grid h-36 place-items-center border border-dashed border-gold/35 bg-white/40">
+                      <span className="font-display text-xs uppercase tracking-[0.22em] text-moss">
+                        SMS
+                      </span>
+                    </div>
+                  )}
+                  <span className="mt-2 block font-display text-[0.68rem] uppercase tracking-[0.14em] text-ink">
+                    {option.label}
+                  </span>
+                  <span className="mt-0.5 block text-sm leading-snug text-fern">
+                    {option.description}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-sm italic text-fern">
+            Image attachments are delivered as MMS and may be resized by the
+            recipient&rsquo;s carrier.
+          </p>
+        </fieldset>
 
         <div className="mt-5">
           <label htmlFor="sms-message" className={labelClass}>

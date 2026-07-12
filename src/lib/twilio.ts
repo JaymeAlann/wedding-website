@@ -1,5 +1,5 @@
 /*
- * Thin Twilio SMS client over their REST API — no SDK dependency.
+ * Thin Twilio SMS/MMS client over their REST API — no SDK dependency.
  * Credentials come from .env.local:
  *
  *   TWILIO_ACCOUNT_SID=ACxxxxxxxx
@@ -40,9 +40,11 @@ export function normalizePhone(input: string): string | null {
 export async function sendSms(
   to: string,
   body: string,
+  mediaUrl?: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const sid = env("TWILIO_ACCOUNT_SID");
   const params = new URLSearchParams({ To: to, Body: body });
+  if (mediaUrl) params.set("MediaUrl", mediaUrl);
   const messagingService = env("TWILIO_MESSAGING_SERVICE_SID");
   if (messagingService) params.set("MessagingServiceSid", messagingService);
   else params.set("From", env("TWILIO_FROM"));
