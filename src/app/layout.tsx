@@ -47,6 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${cormorant.variable} ${cinzel.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="texture-parchment flex min-h-full flex-col">

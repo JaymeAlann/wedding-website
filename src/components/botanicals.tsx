@@ -178,10 +178,23 @@ interface LineArt {
   washes: Wash[];
   /** Continuous strokes; each draws in over `duration` seconds. */
   strokes: Array<{ d: string; duration: number; delay: number }>;
+  /** Small filled details such as berry clusters and flower centers. */
+  marks?: Array<{ cx: number; cy: number; r: number; delay: number }>;
 }
 
 const LINE_ART: Record<
-  "eucalyptus" | "poppy" | "rose" | "rosemary" | "leafy" | "tulip",
+  | "eucalyptus"
+  | "poppy"
+  | "rose"
+  | "rosemary"
+  | "leafy"
+  | "tulip"
+  | "cosmos"
+  | "carnation"
+  | "berrySpray"
+  | "lavender"
+  | "iris"
+  | "anemone",
   LineArt
 > = {
   /** A seeded eucalyptus spray: round leaf loops up a swaying stem. */
@@ -321,6 +334,251 @@ const LINE_ART: Record<
       },
     ],
   },
+
+  /** A loose garden cosmos with airy petals and forked, feathery leaves. */
+  cosmos: {
+    viewBox: "0 0 150 220",
+    washes: [
+      {
+        x: 78,
+        y: 54,
+        scale: 1.08,
+        fill: "var(--color-blush-deep)",
+        opacity: 0.3,
+        delay: 2.15,
+      },
+      {
+        x: 61,
+        y: 68,
+        scale: 0.58,
+        fill: "var(--color-gold)",
+        opacity: 0.2,
+        delay: 2.45,
+      },
+    ],
+    strokes: [
+      {
+        d: "M76 216C74 194 76 171 74 148C72 123 70 98 73 72",
+        duration: 2.3,
+        delay: 0,
+      },
+      {
+        d: "M74 157C62 148 51 144 39 145M58 149C53 139 45 132 36 128M48 140C42 142 35 141 29 138M74 130C85 121 95 117 106 118M91 122C96 111 104 104 114 100M100 112C108 113 115 110 120 106",
+        duration: 1.65,
+        delay: 0.55,
+      },
+      {
+        d: "M73 72C56 76 43 66 46 54C49 44 59 41 68 47C62 37 68 27 78 29C87 30 91 39 87 48C94 40 106 41 110 50C114 59 107 68 97 69C105 76 101 87 91 89C81 91 74 84 74 75C70 85 58 87 52 79C47 72 52 64 61 62C52 59 50 49 57 43C65 37 74 42 77 50",
+        duration: 2.2,
+        delay: 1.05,
+      },
+    ],
+    marks: [{ cx: 77, cy: 61, r: 3.2, delay: 1.9 }],
+  },
+
+  /** A softly ruffled carnation, inspired by pressed invitation florals. */
+  carnation: {
+    viewBox: "0 0 150 220",
+    washes: [
+      {
+        x: 74,
+        y: 55,
+        scale: 1.16,
+        fill: "var(--color-blush-deep)",
+        opacity: 0.28,
+        delay: 2.35,
+      },
+      {
+        x: 58,
+        y: 72,
+        scale: 0.62,
+        fill: "var(--color-parchment-deep)",
+        opacity: 0.42,
+        delay: 2.6,
+      },
+    ],
+    strokes: [
+      {
+        d: "M72 216C70 192 71 170 68 149C66 128 69 104 72 82",
+        duration: 2.35,
+        delay: 0,
+      },
+      {
+        d: "M69 156C56 154 45 147 38 137C51 137 61 142 69 151M68 128C80 123 91 113 96 102C83 105 74 113 68 123",
+        duration: 1.7,
+        delay: 0.55,
+      },
+      {
+        d: "M72 83C62 86 53 81 53 72C43 72 38 63 43 56C36 49 41 39 50 39C49 29 59 24 67 30C72 20 84 21 88 30C98 25 107 33 104 43C114 46 115 57 107 63C111 73 102 82 92 79C88 89 77 91 72 83ZM55 66C58 57 64 53 72 55C65 48 68 39 76 37C83 36 88 41 88 48C94 43 102 48 101 56C100 64 92 68 85 65C87 73 78 79 71 75C66 72 65 67 68 62C63 67 57 70 55 66Z",
+        duration: 2.5,
+        delay: 1,
+      },
+    ],
+  },
+
+  /** A branching spray with dark berries, like the bolder stems in the reference. */
+  berrySpray: {
+    viewBox: "0 0 150 220",
+    washes: [
+      {
+        x: 83,
+        y: 109,
+        scale: 0.78,
+        fill: "var(--color-gold)",
+        opacity: 0.2,
+        delay: 2.25,
+      },
+    ],
+    strokes: [
+      {
+        d: "M69 216C69 190 73 167 76 146C80 119 84 91 92 61",
+        duration: 2.5,
+        delay: 0,
+      },
+      {
+        d: "M76 149C61 139 50 126 43 111M56 133C43 132 32 126 24 117M46 119C42 107 35 98 27 91M81 119C96 111 106 99 112 86M97 106C110 106 122 101 130 92M85 95C74 85 68 75 65 62M90 73C102 67 111 58 116 47",
+        duration: 2.1,
+        delay: 0.5,
+      },
+      {
+        d: "M74 164C61 163 51 168 44 178C57 178 67 173 74 166M78 139C91 139 101 145 107 155C94 154 84 149 78 141M58 132C49 128 43 120 42 111M97 106C107 103 114 96 116 87",
+        duration: 1.75,
+        delay: 0.85,
+      },
+    ],
+    marks: [
+      { cx: 42, cy: 109, r: 3.5, delay: 1.25 },
+      { cx: 27, cy: 89, r: 3.1, delay: 1.4 },
+      { cx: 23, cy: 115, r: 3.7, delay: 1.55 },
+      { cx: 112, cy: 84, r: 3.5, delay: 1.45 },
+      { cx: 130, cy: 90, r: 3.2, delay: 1.6 },
+      { cx: 65, cy: 59, r: 3.3, delay: 1.7 },
+      { cx: 116, cy: 44, r: 3.5, delay: 1.85 },
+      { cx: 93, cy: 58, r: 3.2, delay: 2 },
+    ],
+  },
+
+  /** A slender lavender stem with paired leaves and a tapered flower spike. */
+  lavender: {
+    viewBox: "0 0 110 220",
+    washes: [
+      {
+        x: 56,
+        y: 70,
+        scale: 0.72,
+        fill: "var(--color-mist-deep)",
+        opacity: 0.2,
+        delay: 2.25,
+      },
+    ],
+    strokes: [
+      {
+        d: "M48 217C52 191 53 167 53 144C54 116 56 86 57 47",
+        duration: 2.55,
+        delay: 0,
+      },
+      {
+        d: "M53 166C41 159 33 149 29 138C40 143 48 151 53 161M53 143C64 136 73 126 77 115C66 120 58 128 53 138M55 116C46 109 40 100 37 91C45 95 52 103 55 111",
+        duration: 1.8,
+        delay: 0.5,
+      },
+      {
+        d: "M57 49C47 50 44 42 51 37C44 34 46 25 54 26C49 20 55 13 61 17C61 10 70 9 72 16C78 12 84 19 80 25C87 26 87 35 80 38C85 44 79 52 72 48C70 56 61 57 58 50ZM56 72C48 72 46 65 52 61C47 57 50 50 57 51M58 92C50 91 49 84 55 80C50 76 53 70 59 71",
+        duration: 2.15,
+        delay: 0.95,
+      },
+    ],
+    marks: [
+      { cx: 61, cy: 19, r: 2, delay: 1.35 },
+      { cx: 53, cy: 31, r: 2.2, delay: 1.48 },
+      { cx: 74, cy: 29, r: 2.2, delay: 1.6 },
+      { cx: 60, cy: 43, r: 2.3, delay: 1.72 },
+      { cx: 76, cy: 43, r: 2.1, delay: 1.84 },
+      { cx: 55, cy: 62, r: 2, delay: 1.96 },
+      { cx: 67, cy: 57, r: 2.1, delay: 2.08 },
+      { cx: 59, cy: 80, r: 1.9, delay: 2.2 },
+    ],
+  },
+
+  /** A sculptural iris with upright petals and long invitation-style blades. */
+  iris: {
+    viewBox: "0 0 150 220",
+    washes: [
+      {
+        x: 77,
+        y: 58,
+        scale: 1.12,
+        fill: "var(--color-gold)",
+        opacity: 0.2,
+        delay: 2.35,
+      },
+      {
+        x: 92,
+        y: 67,
+        scale: 0.68,
+        fill: "var(--color-blush-deep)",
+        opacity: 0.22,
+        delay: 2.6,
+      },
+    ],
+    strokes: [
+      {
+        d: "M74 218C72 191 73 165 74 140C75 114 76 91 77 76",
+        duration: 2.5,
+        delay: 0,
+      },
+      {
+        d: "M73 184C54 170 43 149 39 123C57 138 68 155 73 178M74 160C91 142 103 120 110 96C91 111 80 132 74 153M72 203C59 194 50 181 45 166M75 190C88 176 97 160 102 143",
+        duration: 2.05,
+        delay: 0.55,
+      },
+      {
+        d: "M77 77C67 70 62 61 65 51C68 42 76 36 79 27C85 35 89 44 87 53C97 45 108 49 110 58C112 68 102 76 92 77C102 80 105 91 98 97C89 104 79 95 78 81C74 94 61 99 54 91C48 83 56 74 67 75C57 70 53 60 59 52C65 45 74 48 78 57C77 47 72 40 66 34C75 33 82 38 85 47",
+        duration: 2.45,
+        delay: 1.05,
+      },
+    ],
+    marks: [{ cx: 79, cy: 72, r: 2.7, delay: 2.05 }],
+  },
+
+  /** An open anemone on a bowed stem, with a dark stippled center. */
+  anemone: {
+    viewBox: "0 0 150 220",
+    washes: [
+      {
+        x: 74,
+        y: 57,
+        scale: 1.14,
+        fill: "var(--color-blush-deep)",
+        opacity: 0.3,
+        delay: 2.3,
+      },
+    ],
+    strokes: [
+      {
+        d: "M83 217C80 193 78 170 79 147C80 121 77 97 75 78",
+        duration: 2.45,
+        delay: 0,
+      },
+      {
+        d: "M79 154C64 147 51 136 43 122C58 126 71 136 79 149M79 128C93 122 104 112 111 99C97 103 86 112 79 123M63 139C55 143 47 144 39 142M95 115C103 116 111 113 117 108",
+        duration: 1.8,
+        delay: 0.55,
+      },
+      {
+        d: "M75 79C61 87 46 80 45 67C44 56 53 49 64 53C54 44 58 31 69 28C79 25 87 34 84 45C89 33 103 31 110 40C117 49 111 60 100 63C111 66 113 79 105 86C96 93 85 87 82 77C80 88 66 92 58 84C51 76 57 65 68 63C57 60 55 48 62 41C70 34 80 40 80 51C84 42 94 40 100 47C106 55 100 65 91 66",
+        duration: 2.35,
+        delay: 1,
+      },
+    ],
+    marks: [
+      { cx: 77, cy: 62, r: 3.2, delay: 1.85 },
+      { cx: 70, cy: 59, r: 1.45, delay: 1.98 },
+      { cx: 84, cy: 57, r: 1.5, delay: 2.1 },
+      { cx: 87, cy: 65, r: 1.4, delay: 2.22 },
+      { cx: 72, cy: 68, r: 1.35, delay: 2.34 },
+    ],
+  },
 };
 
 export type LineBotanicalKind = keyof typeof LINE_ART;
@@ -341,7 +599,7 @@ export function LineBotanical({
   const ref = useRef<SVGSVGElement>(null);
   useGrowOnView(ref);
 
-  const { viewBox, washes, strokes } = LINE_ART[kind];
+  const { viewBox, washes, strokes, marks = [] } = LINE_ART[kind];
   return (
     <svg
       ref={ref}
@@ -377,6 +635,18 @@ export function LineBotanical({
           pathLength={1}
           style={{ ...grownAt(s.delay), transitionDuration: `${s.duration}s` }}
           d={s.d}
+        />
+      ))}
+      {marks.map((mark, i) => (
+        <circle
+          key={`mark-${i}`}
+          className="botanical-mark"
+          style={grownAt(mark.delay)}
+          cx={mark.cx}
+          cy={mark.cy}
+          r={mark.r}
+          fill="currentColor"
+          stroke="none"
         />
       ))}
     </svg>

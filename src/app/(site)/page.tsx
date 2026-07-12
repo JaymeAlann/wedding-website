@@ -51,12 +51,12 @@ export default async function HomePage() {
         {/* Hand-drawn stems rooted in the hero's corners, like the
             corner sprays of a printed invitation suite. */}
         <LineBotanical
-          kind="eucalyptus"
-          className="absolute bottom-0 left-1 w-16 text-ink/70 sm:left-6 sm:w-36"
+          kind="berrySpray"
+          className="absolute -bottom-3 left-0 w-20 -rotate-[4deg] text-ink/70 sm:left-5 sm:w-36"
         />
         <LineBotanical
-          kind="poppy"
-          className="absolute -right-3 bottom-0 w-24 text-ink/70 sm:right-2 sm:w-44"
+          kind="carnation"
+          className="absolute -right-2 -bottom-2 w-24 rotate-[5deg] text-ink/70 sm:right-3 sm:w-40"
         />
 
         {STARS.map((star) => (
@@ -206,10 +206,10 @@ export default async function HomePage() {
 
           <Reveal className="mt-14">
             <div className="relative mx-auto max-w-3xl">
-              {/* A poppy pressed behind the corner of the photo mat. */}
+              {/* A loose garden flower pressed behind the photo mat. */}
               <LineBotanical
-                kind="poppy"
-                className="absolute -right-8 -top-10 w-32 rotate-[30deg] text-ink/60 sm:-right-12 sm:w-40"
+                kind="cosmos"
+                className="absolute -right-8 -top-12 w-28 rotate-[24deg] text-ink/60 sm:-right-14 sm:w-40"
               />
               <div className="-rotate-[0.6deg] border border-gold/30 bg-white p-3 shadow-lifted sm:p-4">
                 <img
@@ -259,10 +259,10 @@ export default async function HomePage() {
           <Reveal>
             <SectionHeading eyebrow="The order of events" title="The Day" />
           </Reveal>
-          {/* Rosemary growing out of the section's bottom corner. */}
+          {/* Lavender echoes the long, vertical rhythm of the schedule. */}
           <LineBotanical
-            kind="rosemary"
-            className="absolute bottom-0 right-4 hidden w-28 -scale-x-100 text-ink/60 lg:block xl:right-10"
+            kind="lavender"
+            className="absolute bottom-0 right-5 hidden w-20 -scale-x-100 text-ink/60 lg:block xl:right-12"
           />
 
           <ul className="mt-16">
@@ -324,10 +324,10 @@ export default async function HomePage() {
 
           <Reveal className="mt-14">
             <div className="relative mx-auto max-w-2xl">
-              {/* A branch tucked behind the venue card. */}
+              {/* A sculptural iris tucked behind the venue card. */}
               <LineBotanical
-                kind="leafy"
-                className="absolute -right-9 -top-12 hidden w-24 rotate-[24deg] text-ink/60 sm:block"
+                kind="iris"
+                className="absolute -right-10 -top-14 hidden w-28 rotate-[18deg] text-ink/60 sm:block"
               />
             <div className="flex flex-col items-center gap-1.5 border border-gold/30 bg-white/50 px-6 py-8 text-center shadow-soft">
               <Icon name="mapPin" className="h-6 w-6 text-gold-ink" />
@@ -408,10 +408,10 @@ export default async function HomePage() {
 
           <Reveal delay={100}>
             <div className="relative">
-              {/* A spray tucked behind the reply card, stationery-style. */}
+              {/* A berry spray tucked behind the reply card, stationery-style. */}
               <LineBotanical
-                kind="eucalyptus"
-                className="absolute -left-14 -top-20 w-24 -rotate-[36deg] text-ink/60"
+                kind="berrySpray"
+                className="absolute -left-12 -top-20 w-24 -rotate-[32deg] text-ink/60 sm:-left-16 sm:w-28"
               />
               <div className="ornate-frame relative bg-parchment/90 shadow-lifted">
                 <CardCorners />
@@ -427,10 +427,10 @@ export default async function HomePage() {
       {/* ── Registry ─────────────────────────────────────────── */}
       <section id="registry" className="relative scroll-mt-20 px-4 py-20 sm:py-28">
         <WanderingFeet />
-        {/* A tulip rising from the section's bottom edge. */}
+        {/* A ruffled flower rising from the section's bottom edge. */}
         <LineBotanical
-          kind="tulip"
-          className="absolute bottom-0 left-6 hidden w-20 text-ink/60 lg:block xl:left-12"
+          kind="carnation"
+          className="absolute -bottom-1 left-6 hidden w-24 -rotate-[4deg] text-ink/60 lg:block xl:left-12"
         />
         <div className="mx-auto max-w-3xl">
           <Reveal>
@@ -482,10 +482,10 @@ export default async function HomePage() {
           <Reveal>
             <SectionHeading eyebrow="Answers, at a glance" title="Questions" />
           </Reveal>
-          {/* Rosemary rooted where the page meets the footer. */}
+          {/* An open bloom marks the garden's final section. */}
           <LineBotanical
-            kind="rosemary"
-            className="absolute bottom-0 left-4 hidden w-28 text-ink/60 lg:block xl:left-10"
+            kind="anemone"
+            className="absolute -bottom-1 left-4 hidden w-28 rotate-[5deg] text-ink/60 lg:block xl:left-10"
           />
           <Reveal className="mt-12">
             <div className="border-t border-gold/25">

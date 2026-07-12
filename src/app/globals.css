@@ -291,7 +291,8 @@
   }
 
   .botanical .botanical-leaf,
-  .botanical .botanical-petal {
+  .botanical .botanical-petal,
+  .botanical .botanical-mark {
     opacity: 0;
     transform: scale(0.15);
     transform-box: fill-box;
@@ -304,8 +305,12 @@
   .botanical .botanical-petal {
     transform-origin: 50% 100%; /* the flower's center */
   }
+  .botanical .botanical-mark {
+    transform-origin: center;
+  }
   .botanical.is-grown .botanical-leaf,
-  .botanical.is-grown .botanical-petal {
+  .botanical.is-grown .botanical-petal,
+  .botanical.is-grown .botanical-mark {
     opacity: 1;
     transform: none;
   }
@@ -326,6 +331,7 @@
     .botanical .botanical-stem,
     .botanical .botanical-leaf,
     .botanical .botanical-petal,
+    .botanical .botanical-mark,
     .botanical .botanical-wash {
       transition: none;
     }
@@ -333,7 +339,8 @@
       stroke-dashoffset: 0;
     }
     .botanical .botanical-leaf,
-    .botanical .botanical-petal {
+    .botanical .botanical-petal,
+    .botanical .botanical-mark {
       opacity: 1;
       transform: none;
     }
